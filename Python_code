@@ -105,4 +105,31 @@ def stationarityTest(df, column, k):
     print('Number of Observations: ', test[3])
     print('Critical Values: ', test[4])
     
-    
+gdp_filename = '/kaggle/input/percent-change-in-gdp-from-preceding-period/A191RL1Q225SBEA.csv'
+gdp_col_names = ['gdp_change']
+gdp_title = '% Change in Real GDP from Preceding Period'
+gdp = loadDataframe(gdp_filename)
+gdp = tidyDataframe(gdp, gdp_col_names)
+gdp = fedChair(gdp)
+gdp_observed, gdp_trend, gdp_seasonal, gdp_resid = decomposition(gdp, 'gdp_change',f = 4)
+constructPlots(gdp, gdp_observed, gdp_trend, gdp_seasonal, gdp_resid, title = gdp_title, c = 'slategray', a = 0.30)
+constructDistrPlots(gdp, 'gdp_change', '% Change in Real GDP', 'Distribution of Real GDP Change', 'Real GDP Change by Chair Term')
+stationarityTest(gdp, 'gdp_change', k = 4)
+
+cpi_filename = '/kaggle/input/cpi-percent-change-19821984-100/CPIAUCNS.csv'
+cpi_col_names = ['cpi_change']
+cpi_title = '% Change in CPI'
+cpi = loadDataframe(cpi_filename)
+cpi = tidyDataframe(cpi, cpi_col_names)
+cpi = cpi.resample('Q').mean()
+cpi = fedChair(cpi)
+cpi_observed, cpi_trend, cpi_seasonal, cpi_resid = decomposition(cpi, 'cpi_change', f = 4)
+constructPlots(cpi, cpi_observed, cpi_trend, cpi_seasonal, cpi_resid, title = cpi_title, c = 'slategray', a = 0.30)
+constructDistrPlots(cpi, 'cpi_change', '% Change in CPI', 'Distribution of CPI Change', 'CPI Change by Chair Term')
+stationarityTest(cpi, 'cpi_change', k = 4)
+
+cpi_transform = cpi.copy()
+cpi_transform['cpi_change'] = cpi_resid
+cpi_transform.dropna(inplace = True)
+constructDistrPlots(cpi_transform, 'cpi_change', '% Change in Residual CPI', 'Distribution of Residual CPI Change', 'Residual CPI Change by Chair Term')
+stationarityTest(cpi_transform, 'cpi_change', k = 4)
